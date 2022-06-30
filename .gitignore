@@ -1,0 +1,11 @@
+node_modules/
+.idea/
+log/
+.env
+dist
+public
+combined.log
+error.log
+yarn-error.log
+data
+public

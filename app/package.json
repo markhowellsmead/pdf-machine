@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "express": "^4.18.1",
+    "puppeteer": "^15.2.0"
+  },
+  "scripts": {
+    "prod": "node ./app/index.js",
+    "eslint": "eslint . --ext ts"
+  }
+}
