@@ -7,4 +7,4 @@ app.get("/", (request, response) => {
   response.send("Hello World");
 });
 
-app.listen(PORT, () => console.log(`node-hello-world listening to ${PORT}!`));
+app.listen(PORT);

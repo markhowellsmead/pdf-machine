@@ -5,8 +5,8 @@ RUN apt-get update && \
   libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 \
   libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 \
   ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget
-RUN mkdir -p /usr/src/node-hello-world/node_modules && chown -R node:node /usr/src/node-hello-world && mkdir -p /usr/src/node-hello-world/public
-WORKDIR /usr/src/node-hello-world
+RUN mkdir -p /usr/src/pdf-machine/node_modules && chown -R node:node /usr/src/pdf-machine && mkdir -p /usr/src/pdf-machine/public
+WORKDIR /usr/src/pdf-machine
 COPY package*.json ./
 RUN yarn install
 COPY . .
