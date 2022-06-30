@@ -1,10 +1,10 @@
-const express = require("express");
+const express = require('express');
 
 const PORT = Number(process.env.PORT) || 8080;
 const app = express();
 
-app.get("/", (request, response) => {
-  response.send("Hello World");
+app.get('/', (request, response) => {
+  response.send('Hello World');
 });
 
-app.listen(PORT);
+app.listen(PORT, () => console.log(`pdf-machine listening to ${PORT}!`));

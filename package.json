@@ -1,10 +1,18 @@
 {
+  "name": "pdf-machine",
+  "description": "A PDF generator for web projects.",
+  "main": "app/index.js",
+  "author": "mark@sayhello.ch",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.1",
     "puppeteer": "^15.2.0"
   },
   "scripts": {
-    "prod": "node ./app/index.js",
-    "eslint": "eslint . --ext ts"
+    "prod": "node ./app/index.js"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5"
   }
 }
