@@ -3,6 +3,22 @@ const puppeteer = require('puppeteer'),
 	pdf = require('express-pdf'),
 	bodyParser = require('body-parser');
 
+const winston = require('winston');
+require('winston-daily-rotate-file');
+
+var transport = new winston.transports.DailyRotateFile({
+	level: 'info',
+	filename: 'application-%DATE%.log',
+	datePattern: 'YYYY-MM-DD-HH',
+	zippedArchive: true,
+	maxSize: '20m',
+	maxFiles: '14d',
+});
+
+var logger = winston.createLogger({
+	transports: [transport],
+});
+
 const PORT = Number(process.env.PORT) || 8080;
 const app = express();
 
@@ -98,6 +114,7 @@ async function pdfFromURL(req, res) {
 		// e.g. Connection refused because of invalid SSL certificate
 		// (although that is caught within puppeteer.launch)
 		await browser.close();
+		logger.error(err);
 		res.status(500).send(
 			'The website could not provide content for the generation of a PDF.'
 		);

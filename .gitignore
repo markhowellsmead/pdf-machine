@@ -10,3 +10,4 @@ yarn-error.log
 data
 public
 .DS_Store
+*.log
