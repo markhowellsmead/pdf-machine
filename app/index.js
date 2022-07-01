@@ -33,13 +33,52 @@ async function autoScroll(page) {
 }
 
 /**
+ * Pass in an HTML string from which to generate a PDF
+ */
+async function pdfFromHTML(req, res) {
+	const html = req.body.html || null;
+
+	if (!html) {
+		res.status(400).send('No HTML was provided');
+	}
+
+	const browser = await puppeteer.launch({
+		headless: true,
+	});
+
+	const page = await browser.newPage();
+	await page.setContent(html);
+
+	// Handle LazyLoading by scrolling the page down 100ms at a time
+	await autoScroll(page);
+
+	// Generate the PDF and return the binary to the calling API method
+	const timeout = 60 * 1000;
+	const pdf = await page.pdf({
+		displayHeaderFooter: false,
+		printBackground: true,
+		format: 'A4',
+		timeout: timeout,
+		margin: {
+			top: '1.5cm',
+			bottom: '1.5cm',
+			left: '1.5cm',
+			right: '1.5cm',
+		},
+	});
+
+	await browser.close();
+	return pdf;
+}
+
+/**
  * Pass in a URL as a GET parameter to create a PDF from that URL
  */
 async function pdfFromURL(req, res) {
 	const url = req.query.url || null;
 
 	if (!url) {
-		return 404;
+		res.status(404).send('No URL specified');
 	}
 
 	const browser = await puppeteer.launch({
@@ -95,7 +134,13 @@ async function pdfFromURL(req, res) {
 }
 
 app.post('/api/from-html-string', function (req, res) {
-	res.sendStatus(200);
+	pdfFromHTML(req, res).then((result) => {
+		res.writeHead(200, {
+			'Content-Type': 'application/pdf',
+			'Content-Length': result.length,
+		});
+		res.end(result, 'binary');
+	});
 });
 
 /**
@@ -104,25 +149,11 @@ app.post('/api/from-html-string', function (req, res) {
  */
 app.get('/api/from-url', function (req, res) {
 	pdfFromURL(req, res).then((result) => {
-		switch (typeof result) {
-			case 'number':
-				res.status(result).send('Borked');
-				break;
-
-			case 'object':
-				res.writeHead(200, {
-					'Content-Type': 'application/pdf',
-					'Content-Length': result.length,
-				});
-				res.end(result, 'binary');
-				break;
-
-			default:
-				res.status(500).send(
-					`Unable to create PDF from URL “${req.query.url}”`
-				);
-				break;
-		}
+		res.writeHead(200, {
+			'Content-Type': 'application/pdf',
+			'Content-Length': result.length,
+		});
+		res.end(result, 'binary');
 	});
 });
 
