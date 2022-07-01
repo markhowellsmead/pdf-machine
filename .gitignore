@@ -11,3 +11,4 @@ data
 public
 .DS_Store
 *.log
+*-audit.json
