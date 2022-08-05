@@ -6,6 +6,13 @@ const puppeteer = require('puppeteer'),
 const winston = require('winston');
 require('winston-daily-rotate-file');
 
+class HttpError extends Error {
+	constructor(message, statusCode) {
+		super(message);
+		this.statusCode = statusCode;
+	}
+}
+
 var transport = new winston.transports.DailyRotateFile({
 	level: 'info',
 	filename: 'application-%DATE%.log',
@@ -18,6 +25,12 @@ var transport = new winston.transports.DailyRotateFile({
 var logger = winston.createLogger({
 	transports: [transport],
 });
+
+// Send error message back to client
+const error_handler = (error, res) => {
+	res.status(error.statusCode).send(error.message);
+	res.end();
+};
 
 const PORT = Number(process.env.PORT) || 8080;
 const app = express();
@@ -55,7 +68,7 @@ async function pdfFromHTML(req, res) {
 	const html = req.body.html || null;
 
 	if (!html) {
-		res.status(400).send('No HTML was provided');
+		throw new HttpError('No HTML was provided', 400);
 	}
 
 	const browser = await puppeteer.launch({
@@ -94,8 +107,7 @@ async function pdfFromURL(req, res) {
 	const url = req.query.url || null;
 
 	if (!url) {
-		res.status(404).send('No URL specified');
-		return;
+		throw new HttpError('No URL specified', 404);
 	}
 
 	const browser = await puppeteer.launch({
@@ -151,15 +163,26 @@ async function pdfFromURL(req, res) {
 	return pdf;
 }
 
+app.get('/api/from-html-string', function (req, res) {
+	error_handler(
+		{ message: 'Invalid HTTP request mode', statusCode: 500 },
+		res
+	);
+});
+
 app.post('/api/from-html-string', function (req, res) {
 	console.info('Incoming: api/from-html-string');
-	pdfFromHTML(req, res).then((result) => {
-		res.writeHead(200, {
-			'Content-Type': 'application/pdf',
-			'Content-Length': result.length,
+	pdfFromHTML(req, res)
+		.then((result) => {
+			res.writeHead(200, {
+				'Content-Type': 'application/pdf',
+				'Content-Length': result.length,
+			});
+			res.end(result, 'binary');
+		})
+		.catch((error) => {
+			error_handler(error, res);
 		});
-		res.end(result, 'binary');
-	});
 });
 
 /**
@@ -168,13 +191,17 @@ app.post('/api/from-html-string', function (req, res) {
  */
 app.get('/api/from-url', function (req, res) {
 	console.info('Incoming: api/from-url');
-	pdfFromURL(req, res).then((result) => {
-		res.writeHead(200, {
-			'Content-Type': 'application/pdf',
-			'Content-Length': result.length,
+	pdfFromURL(req, res)
+		.then((result) => {
+			res.writeHead(200, {
+				'Content-Type': 'application/pdf',
+				'Content-Length': result.length,
+			});
+			res.end(result, 'binary');
+		})
+		.catch((error) => {
+			error_handler(error, res);
 		});
-		res.end(result, 'binary');
-	});
 });
 
 /**
