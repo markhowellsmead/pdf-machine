@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:14
+FROM node:16.16.0
 
 RUN apt-get update && \
   apt-get install -yq ca-certificates fonts-liberation gconf-service libappindicator1 \
