@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:14
 RUN apt-get update && \
   apt-get install -yq ca-certificates fonts-liberation gconf-service libappindicator1 \
   libappindicator3-1 libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 \
