@@ -95,6 +95,7 @@ async function pdfFromURL(req, res) {
 
 	if (!url) {
 		res.status(404).send('No URL specified');
+		return;
 	}
 
 	const browser = await puppeteer.launch({
