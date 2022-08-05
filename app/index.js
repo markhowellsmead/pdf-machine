@@ -112,6 +112,7 @@ async function pdfFromURL(req, res) {
 
 	const browser = await puppeteer.launch({
 		headless: true,
+		args: ['--use-gl=egl', '--no-sandbox'],
 		ignoreHTTPSErrors: true,
 	});
 
