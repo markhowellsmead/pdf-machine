@@ -174,7 +174,6 @@ app.get('/api/from-html-string', function (req, res) {
 });
 
 app.post('/api/from-html-string', function (req, res) {
-	console.info('Incoming: api/from-html-string');
 	pdfFromHTML(req, res)
 		.then((result) => {
 			res.writeHead(200, {
@@ -193,7 +192,6 @@ app.post('/api/from-html-string', function (req, res) {
  * AutoScroll should handle all lazyload images
  */
 app.get('/api/from-url', function (req, res) {
-	console.info('Incoming: api/from-url');
 	pdfFromURL(req, res)
 		.then((result) => {
 			res.writeHead(200, {
@@ -214,7 +212,6 @@ app.get('/api/from-url', function (req, res) {
  * which is not defined above
  */
 app.get('*', function (req, res) {
-	console.info('Incoming: other request');
 	res.status(404).send("These are not the droids you're looking for.");
 });
 
