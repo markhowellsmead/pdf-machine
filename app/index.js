@@ -206,6 +206,14 @@ app.get('/api/from-url', function (req, res) {
 });
 
 /**
+ * Add an endpoint for ping services
+ * which check that the server is up.
+ */
+app.get('/api/vasili', function (req, res) {
+	res.status(200).send('Give Me a Ping, Vasili. One Ping Only.');
+});
+
+/**
  * 404 not found
  * This must be the last route definition
  * so that it handles every request
