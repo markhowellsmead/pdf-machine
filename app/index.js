@@ -36,9 +36,8 @@ const PORT = Number(process.env.PORT) || 8080;
 const app = express();
 
 app.use(pdf);
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json({ limit: '50mb' }));
+app.use(bodyParser.json({ limit: '1000mb' }));
+app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
 
 /**
  * Handle LazyLoading by scrolling the page down 100px every 100ms
