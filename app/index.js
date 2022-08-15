@@ -38,6 +38,7 @@ const app = express();
 app.use(pdf);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
 
 /**
  * Handle LazyLoading by scrolling the page down 100px every 100ms
