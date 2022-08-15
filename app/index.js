@@ -66,7 +66,16 @@ async function autoScroll(page) {
  * Pass in an HTML string from which to generate a PDF
  */
 async function pdfFromHTML(req, res) {
-	const html = req.body.html || null;
+	const html = req.body.html || null,
+		marginTop = req.body.margin.top || 0,
+		marginRight = req.body.margin.right || 0,
+		marginBottom = req.body.margin.bottom || 0,
+		marginLeft = req.body.margin.left || 0,
+		pageFormat = req.body.format || 'A4',
+		scale = req.body.scale || 1,
+		headerHTML = req.body.headerHTML || '<div></div>',
+		footerHTML = req.body.footerHTML || '<div></div>',
+		displayHeaderFooter = true;
 
 	if (!html) {
 		throw new HttpError('No HTML was provided', 400);
@@ -87,15 +96,18 @@ async function pdfFromHTML(req, res) {
 	// Generate the PDF and return the binary to the calling API method
 	const timeout = 60 * 1000;
 	const pdf = await page.pdf({
-		displayHeaderFooter: false,
+		displayHeaderFooter: displayHeaderFooter,
 		printBackground: true,
-		format: 'A4',
+		format: pageFormat,
+		scale: scale,
 		timeout: timeout,
+		headerTemplate: headerHTML,
+		footerTemplate: footerHTML,
 		margin: {
-			top: '1.5cm',
-			bottom: '1.5cm',
-			left: '1.5cm',
-			right: '1.5cm',
+			top: marginTop,
+			bottom: marginBottom,
+			left: marginLeft,
+			right: marginRight,
 		},
 	});
 
