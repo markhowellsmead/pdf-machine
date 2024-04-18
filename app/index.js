@@ -65,6 +65,10 @@ async function autoScroll(page) {
  * Pass in an HTML string from which to generate a PDF
  */
 async function pdfFromHTML(req, res) {
+	if (!req.body.html?.length) {
+		throw new HttpError('No HTML was provided', 400);
+	}
+
 	const html = req.body.html || null,
 		marginTop = req.body.margin.top || 0,
 		marginRight = req.body.margin.right || 0,
