@@ -19,6 +19,11 @@ Running this code in a local development requires Node, NPM and Puppeteer in the
 
 ## Changelog
 
+### 0.3.2 (18.4.2024)
+
+-   Extend the timeout to 180 seconds
+-   Use Winston to log all errors.
+
 ### 0.3.1 (18.4.2024)
 
 -   Add /api/version endpoint in JSON data format.
