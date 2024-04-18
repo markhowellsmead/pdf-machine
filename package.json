@@ -2,6 +2,7 @@
 	"name": "pdf-machine",
 	"description": "A PDF generator for web projects.",
 	"main": "app/index.js",
+	"version": "0.3.1",
 	"author": "mark@sayhello.ch",
 	"license": "MIT",
 	"dependencies": {
@@ -13,7 +14,11 @@
 		"winston-daily-rotate-file": "^5.0.0"
 	},
 	"scripts": {
-		"prod": "node ./app/index.js"
+		"prod": "node ./app/index.js",
+		"dev": "nodemon ./app/index.js"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.22"
 	},
 	"prettier": {
 		"singleQuote": true,

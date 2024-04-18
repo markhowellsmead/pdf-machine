@@ -222,6 +222,20 @@ app.get('/api/from-url', function (req, res) {
 });
 
 /**
+ * Add an endpoint to show current version
+ * which check that the server is up.
+ */
+app.get('/api/version', function (req, res) {
+	const packageJson = require('../package.json');
+	const { author, name, description, version } = packageJson;
+
+	const responseData = { name, description, author, version };
+
+	res.setHeader('Content-Type', 'application/json');
+	res.status(200).send(JSON.stringify(responseData));
+});
+
+/**
  * Add an endpoint for ping services
  * which check that the server is up.
  */
