@@ -11,6 +11,7 @@ Any CSS supported by the headless (Chrome) browser will be correctly rendered in
 -   _/api/from-html-string_ (POST). Pass in a complete HTML page as a string.
 -   _/api/from-url_ (GET). Pass in a valid URL using the `url` GET parameter.
 -   _/api/vasili_ (GET). Simple endpoint which outputs a plain text string. Allows a monitor to check that the app is responding.
+-   _/api/version_ (GET). Show the current version of the API.
 
 ## Local development
 
@@ -18,7 +19,12 @@ Running this code in a local development requires Node, NPM and Puppeteer in the
 
 ## Changelog
 
-### 0.3.0 (18.4.2024
+### 0.3.1 (18.4.2024)
+
+-   Add /api/version endpoint in JSON data format.
+-   Add `npm run dev` for local development using [nodemon](https://www.npmjs.com/package/nodemon).
+
+### 0.3.0 (18.4.2024)
 
 -   Update Node version
 -   disable AsyncDNS in Puppeteer config
