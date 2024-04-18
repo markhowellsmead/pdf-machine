@@ -13,7 +13,16 @@ class HttpError extends Error {
 	}
 }
 
-var transport = new winston.transports.DailyRotateFile({
+var transport_info = new winston.transports.DailyRotateFile({
+	level: 'info',
+	filename: 'application-%DATE%.log',
+	datePattern: 'YYYY-MM-DD-HH',
+	zippedArchive: true,
+	maxSize: '20m',
+	maxFiles: '14d',
+});
+
+var transport_error = new winston.transports.DailyRotateFile({
 	level: 'info',
 	filename: 'application-%DATE%.log',
 	datePattern: 'YYYY-MM-DD-HH',
@@ -23,11 +32,12 @@ var transport = new winston.transports.DailyRotateFile({
 });
 
 var logger = winston.createLogger({
-	transports: [transport],
+	transports: [transport_info, transport_error],
 });
 
 // Send error message back to client
 const error_handler = (error, res) => {
+	logger.error(error.message);
 	res.status(error.statusCode).send(error.message);
 	res.end();
 };
@@ -97,7 +107,7 @@ async function pdfFromHTML(req, res) {
 	await autoScroll(page);
 
 	// Generate the PDF and return the binary to the calling API method
-	const timeout = 60 * 1000;
+	const timeout = 180 * 1000;
 	const pdf = await page.pdf({
 		displayHeaderFooter: displayHeaderFooter,
 		printBackground: true,
