@@ -107,7 +107,7 @@ async function pdfFromHTML(req, res) {
 	await autoScroll(page);
 
 	// Generate the PDF and return the binary to the calling API method
-	const timeout = 60 * 1000;
+	const timeout = 180 * 1000;
 	const pdf = await page.pdf({
 		displayHeaderFooter: displayHeaderFooter,
 		printBackground: true,
