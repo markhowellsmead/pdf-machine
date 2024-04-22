@@ -3,14 +3,18 @@ const puppeteer = require('puppeteer'),
 	bodyParser = require('body-parser'),
 	nodemailer = require('nodemailer');
 
+require('dotenv').config();
+
+const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+
 // SMTP transporter configuration
 let transporter = nodemailer.createTransport({
-	host: 'mail.cyon.ch',
-	port: 465, // Commonly, 587 for TLS/StartTLS and 465 for SSL
-	secure: true, // true for 465, false for other ports
+	host: SMTP_HOST,
+	port: SMTP_PORT, // Commonly, 587 for TLS/StartTLS and 465 for SSL
+	secure: SMTP_PORT == 465, // true for 465, false for other ports
 	auth: {
-		user: 'pdf-machine@sayhello.dev',
-		pass: '+Yc3y6RWJi!Xv',
+		user: SMTP_USER,
+		pass: SMTP_PASS,
 	},
 	tls: {
 		// Do not fail on invalid certs (only in development or if necessary)
@@ -20,7 +24,7 @@ let transporter = nodemailer.createTransport({
 
 const sendErrorEmail = (error) => {
 	const mailOptions = {
-		from: 'pdf-machine@sayhello.dev', // sender address
+		from: SMTP_USER, // sender address
 		to: 'hello@sayhello.ch', // list of receivers
 		subject: 'PDF Machine Application Error Alert', // Subject line
 		text: `An error occurred: ${error.message}`, // plain text body

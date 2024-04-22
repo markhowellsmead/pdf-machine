@@ -19,6 +19,10 @@ Running this code in a local development requires Node, NPM and Puppeteer in the
 
 ## Changelog
 
+### 0.3.6 (22.4.2024)
+
+-   Mail security
+
 ### 0.3.3 - 0.3.5 (22.4.2024)
 
 -   Various error handling and messaging improvments

@@ -2,11 +2,12 @@
 	"name": "pdf-machine",
 	"description": "A PDF generator for web projects.",
 	"main": "app/index.js",
-	"version": "0.3.5",
+	"version": "0.3.6",
 	"author": "mark@sayhello.ch",
 	"license": "MIT",
 	"dependencies": {
 		"body-parser": "^1.20.2",
+		"dotenv": "^16.4.5",
 		"express": "^4.19.2",
 		"nodemailer": "^6.9.13",
 		"puppeteer": "^22.6.5",
