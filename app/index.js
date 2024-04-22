@@ -5,6 +5,13 @@ const puppeteer = require('puppeteer'),
 const winston = require('winston');
 require('winston-daily-rotate-file');
 
+class HttpError extends Error {
+	constructor(message, statusCode) {
+		super(message);
+		this.statusCode = statusCode;
+	}
+}
+
 var transport_info = new winston.transports.DailyRotateFile({
 	level: 'info',
 	filename: 'application-%DATE%.log',
@@ -30,7 +37,10 @@ var logger = winston.createLogger({
 // Send error message back to client
 const error_handler = (error, res) => {
 	logger.error(error);
-	res.status(error.statusCode).send(error.message);
+	const statusCode = error.statusCode || 500;
+	console.log(statusCode);
+	console.log(error.message || 'General error');
+	res.status(statusCode).send(error.message || 'General error');
 	res.end();
 };
 
@@ -67,7 +77,7 @@ async function autoScroll(page) {
  */
 async function pdfFromHTML(req, res) {
 	if (!req.body.html?.length) {
-		error_handler('No HTML was provided', res);
+		throw new HttpError('No HTML was provided', 400);
 	}
 
 	const html = req.body.html || null,
@@ -82,13 +92,7 @@ async function pdfFromHTML(req, res) {
 		displayHeaderFooter = true;
 
 	if (!html) {
-		error_handler(
-			{
-				message: 'No HTML was provided',
-				statusCode: 500,
-			},
-			res
-		);
+		throw new HttpError('No HTML was provided', 500);
 	}
 
 	const browser = await puppeteer.launch({
@@ -132,13 +136,7 @@ async function pdfFromURL(req, res) {
 	const url = req.query.url || null;
 
 	if (!url) {
-		error_handler(
-			{
-				message: 'No URL specified',
-				statusCode: 404,
-			},
-			res
-		);
+		throw new HttpError('No URL specified', 404);
 	}
 
 	const browser = await puppeteer.launch({
@@ -155,11 +153,12 @@ async function pdfFromURL(req, res) {
 			waitUntil: 'networkidle2',
 			timeout: 60000,
 		});
-	} catch (err) {
+	} catch (error) {
 		// e.g. Connection refused because of invalid SSL certificate
 		// (although that is caught within puppeteer.launch)
 		await browser.close();
-		logger.error(err);
+		console.log(error);
+		//logger.error(error);
 		res.status(500).send(
 			'The website could not provide content for the generation of a PDF.'
 		);
@@ -169,8 +168,10 @@ async function pdfFromURL(req, res) {
 	// Unexpected response, e.g. 301, 302 etc.
 	if (!!remote_response && remote_response.status() > 299) {
 		await browser.close();
-		res.status(remote_response.status).send(
-			`The website returned the status code ${remote_response.status}`
+		res.status(remote_response.status || 400).send(
+			`The website returned the status code "${
+				remote_response.status || 'UNKNOWN'
+			}"`
 		);
 		res.end();
 	}
@@ -198,12 +199,9 @@ async function pdfFromURL(req, res) {
 }
 
 app.get('/api/from-html-string', function (req, res) {
-	error_handler(
-		{
-			message: 'Invalid HTTP request mode - only POST is supported',
-			statusCode: 500,
-		},
-		res
+	throw new HttpError(
+		'Invalid HTTP request mode - only POST is supported',
+		400
 	);
 });
 
@@ -217,7 +215,7 @@ app.post('/api/from-html-string', function (req, res) {
 			res.end(result, 'binary');
 		})
 		.catch((error) => {
-			error_handler(error, res);
+			throw new HttpError(error.message, 500);
 		});
 });
 
@@ -235,7 +233,7 @@ app.get('/api/from-url', function (req, res) {
 			res.end(result, 'binary');
 		})
 		.catch((error) => {
-			error_handler(error, res);
+			throw new HttpError(error.message, 500);
 		});
 });
 
