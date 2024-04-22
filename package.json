@@ -2,7 +2,7 @@
 	"name": "pdf-machine",
 	"description": "A PDF generator for web projects.",
 	"main": "app/index.js",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"author": "mark@sayhello.ch",
 	"license": "MIT",
 	"dependencies": {

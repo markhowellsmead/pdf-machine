@@ -5,13 +5,6 @@ const puppeteer = require('puppeteer'),
 const winston = require('winston');
 require('winston-daily-rotate-file');
 
-class HttpError extends Error {
-	constructor(message, statusCode) {
-		super(message);
-		this.statusCode = statusCode;
-	}
-}
-
 var transport_info = new winston.transports.DailyRotateFile({
 	level: 'info',
 	filename: 'application-%DATE%.log',
