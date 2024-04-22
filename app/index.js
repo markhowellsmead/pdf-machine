@@ -143,32 +143,43 @@ async function pdfFromHTML(req, res) {
 		ignoreHTTPSErrors: true,
 	});
 
-	const page = await browser.newPage();
-	await page.setContent(html);
+	try {
+		const page = await browser.newPage();
+		await page.setContent(html);
 
-	// Handle LazyLoading by scrolling the page down 100ms at a time
-	await autoScroll(page);
+		// Handle LazyLoading by scrolling the page down 100ms at a time
+		await autoScroll(page);
 
-	// Generate the PDF and return the binary to the calling API method
-	const timeout = 180 * 1000;
-	const pdf = await page.pdf({
-		displayHeaderFooter: displayHeaderFooter,
-		printBackground: true,
-		format: pageFormat,
-		scale: scale,
-		timeout: timeout,
-		headerTemplate: headerHTML,
-		footerTemplate: footerHTML,
-		margin: {
-			top: marginTop,
-			bottom: marginBottom,
-			left: marginLeft,
-			right: marginRight,
-		},
-	});
+		// Generate the PDF and return the binary to the calling API method
+		const timeout = 180 * 1000;
+		const pdf = await page.pdf({
+			displayHeaderFooter: displayHeaderFooter,
+			printBackground: true,
+			format: pageFormat,
+			scale: scale,
+			timeout: timeout,
+			headerTemplate: headerHTML,
+			footerTemplate: footerHTML,
+			margin: {
+				top: marginTop,
+				bottom: marginBottom,
+				left: marginLeft,
+				right: marginRight,
+			},
+		});
 
-	await browser.close();
-	return pdf;
+		await browser.close();
+		return pdf;
+	} catch (error) {
+		await browser.close();
+		sendErrorEmail({
+			message: `pdfFromHTML: No content available (status code: ${error.statusCode})`,
+		});
+		res.status(error.statusCode).send(
+			'The website could not provide content for the generation of a PDF from an HTML string.'
+		);
+		res.end();
+	}
 }
 
 /**
@@ -188,32 +199,24 @@ async function pdfFromURL(req, res) {
 	});
 
 	const page = await browser.newPage();
-	let remote_response;
 
 	try {
-		remote_response = await page.goto(url, {
+		const response = await page.goto(url, {
 			waitUntil: 'networkidle2',
 			timeout: 60000,
 		});
+
+		if (response && response.status() > 299) {
+			throw new HttpError(response.message, response.status());
+		}
 	} catch (error) {
 		// e.g. Connection refused because of invalid SSL certificate
-		// (although that is caught within puppeteer.launch)
 		await browser.close();
-		console.log(error);
-		//logger.error(error);
-		res.status(500).send(
+		sendErrorEmail({
+			message: `pdfFromURL: No content available from ${url} (status code: ${error.statusCode})`,
+		});
+		res.status(error.statusCode).send(
 			'The website could not provide content for the generation of a PDF.'
-		);
-		res.end();
-	}
-
-	// Unexpected response, e.g. 301, 302 etc.
-	if (!!remote_response && remote_response.status() > 299) {
-		await browser.close();
-		res.status(remote_response.status || 400).send(
-			`The website returned the status code "${
-				remote_response.status || 'UNKNOWN'
-			}"`
 		);
 		res.end();
 	}
@@ -247,7 +250,7 @@ app.get('/api/from-html-string', function (req, res) {
 	);
 });
 
-app.post('/api/from-html-string', function (req, res) {
+app.post('/api/from-html-string', function (req, res, next) {
 	pdfFromHTML(req, res)
 		.then((result) => {
 			res.writeHead(200, {
@@ -257,7 +260,7 @@ app.post('/api/from-html-string', function (req, res) {
 			res.end(result, 'binary');
 		})
 		.catch((error) => {
-			throw new HttpError(error.message, 500);
+			next(new HttpError(error.message, 500));
 		});
 });
 
@@ -265,7 +268,7 @@ app.post('/api/from-html-string', function (req, res) {
  * Pass in a URL and get a PDF of that page
  * AutoScroll should handle all lazyload images
  */
-app.get('/api/from-url', function (req, res) {
+app.get('/api/from-url', function (req, res, next) {
 	pdfFromURL(req, res)
 		.then((result) => {
 			res.writeHead(200, {
@@ -275,7 +278,7 @@ app.get('/api/from-url', function (req, res) {
 			res.end(result, 'binary');
 		})
 		.catch((error) => {
-			throw new HttpError(error.message, 500);
+			next(new HttpError(error.message, 500));
 		});
 });
 
