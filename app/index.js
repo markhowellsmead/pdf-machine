@@ -170,6 +170,7 @@ async function pdfFromURL(req, res) {
 		res.status(500).send(
 			'The website could not provide content for the generation of a PDF.'
 		);
+		res.end();
 	}
 
 	// Unexpected response, e.g. 301, 302 etc.
@@ -178,6 +179,7 @@ async function pdfFromURL(req, res) {
 		res.status(remote_response.status).send(
 			`The website returned the status code ${remote_response.status}`
 		);
+		res.end();
 	}
 
 	// Handle LazyLoading by scrolling the page down 100ms at a time
@@ -256,6 +258,7 @@ app.get('/api/version', function (req, res) {
 
 	res.setHeader('Content-Type', 'application/json');
 	res.status(200).send(JSON.stringify(responseData));
+	res.end();
 });
 
 /**
@@ -264,6 +267,7 @@ app.get('/api/version', function (req, res) {
  */
 app.get('/api/vasili', function (req, res) {
 	res.status(200).send('Give Me a Ping, Vasili. One Ping Only.');
+	res.end();
 });
 
 /**
@@ -274,6 +278,7 @@ app.get('/api/vasili', function (req, res) {
  */
 app.get('*', function (req, res) {
 	res.status(404).send("These are not the droids you're looking for.");
+	res.end();
 });
 
 /**
