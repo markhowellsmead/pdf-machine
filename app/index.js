@@ -22,7 +22,7 @@ var transport_info = new winston.transports.DailyRotateFile({
 });
 
 var transport_error = new winston.transports.DailyRotateFile({
-	level: 'info',
+	level: 'error',
 	filename: 'application-%DATE%.log',
 	datePattern: 'YYYY-MM-DD-HH',
 	zippedArchive: true,
@@ -36,7 +36,7 @@ var logger = winston.createLogger({
 
 // Send error message back to client
 const error_handler = (error, res) => {
-	logger.error(error.message);
+	logger.error(error);
 	res.status(error.statusCode).send(error.message);
 	res.end();
 };
@@ -44,7 +44,6 @@ const error_handler = (error, res) => {
 const PORT = Number(process.env.PORT) || 8080;
 const app = express();
 
-app.use(pdf);
 app.use(bodyParser.json({ limit: '1000mb' }));
 app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
 
@@ -75,7 +74,7 @@ async function autoScroll(page) {
  */
 async function pdfFromHTML(req, res) {
 	if (!req.body.html?.length) {
-		throw new HttpError('No HTML was provided', 400);
+		error_handler('No HTML was provided', res);
 	}
 
 	const html = req.body.html || null,
@@ -90,7 +89,13 @@ async function pdfFromHTML(req, res) {
 		displayHeaderFooter = true;
 
 	if (!html) {
-		throw new HttpError('No HTML was provided', 400);
+		error_handler(
+			{
+				message: 'No HTML was provided',
+				statusCode: 500,
+			},
+			res
+		);
 	}
 
 	const browser = await puppeteer.launch({
@@ -134,7 +139,13 @@ async function pdfFromURL(req, res) {
 	const url = req.query.url || null;
 
 	if (!url) {
-		throw new HttpError('No URL specified', 404);
+		error_handler(
+			{
+				message: 'No URL specified',
+				statusCode: 404,
+			},
+			res
+		);
 	}
 
 	const browser = await puppeteer.launch({
@@ -193,7 +204,10 @@ async function pdfFromURL(req, res) {
 
 app.get('/api/from-html-string', function (req, res) {
 	error_handler(
-		{ message: 'Invalid HTTP request mode', statusCode: 500 },
+		{
+			message: 'Invalid HTTP request mode - only POST is supported',
+			statusCode: 500,
+		},
 		res
 	);
 });
