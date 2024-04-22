@@ -1,6 +1,40 @@
 const puppeteer = require('puppeteer'),
 	express = require('express'),
-	bodyParser = require('body-parser');
+	bodyParser = require('body-parser'),
+	nodemailer = require('nodemailer');
+
+// SMTP transporter configuration
+let transporter = nodemailer.createTransport({
+	host: 'mail.cyon.ch',
+	port: 465, // Commonly, 587 for TLS/StartTLS and 465 for SSL
+	secure: true, // true for 465, false for other ports
+	auth: {
+		user: 'pdf-machine@sayhello.dev',
+		pass: '+Yc3y6RWJi!Xv',
+	},
+	tls: {
+		// Do not fail on invalid certs (only in development or if necessary)
+		rejectUnauthorized: false,
+	},
+});
+
+const sendErrorEmail = (error) => {
+	const mailOptions = {
+		from: 'pdf-machine@sayhello.dev', // sender address
+		to: 'hello@sayhello.ch', // list of receivers
+		subject: 'PDF Machine Application Error Alert', // Subject line
+		text: `An error occurred: ${error.message}`, // plain text body
+		html: `<b>An error occurred:</b> ${error.message}`, // HTML body content
+	};
+
+	transporter.sendMail(mailOptions, function (err, info) {
+		if (err) {
+			console.error('Error sending email:', err);
+		} else {
+			console.log('Email sent:', info.response);
+		}
+	});
+};
 
 const winston = require('winston');
 require('winston-daily-rotate-file');
