@@ -8,7 +8,6 @@
 	"dependencies": {
 		"body-parser": "^1.20.2",
 		"express": "^4.19.2",
-		"express-pdf": "^1.2.2",
 		"puppeteer": "^22.6.5",
 		"winston": "^3.13.0",
 		"winston-daily-rotate-file": "^5.0.0"
