@@ -1,6 +1,5 @@
 const puppeteer = require('puppeteer'),
 	express = require('express'),
-	pdf = require('express-pdf'),
 	bodyParser = require('body-parser');
 
 const winston = require('winston');
