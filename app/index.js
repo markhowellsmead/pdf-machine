@@ -69,20 +69,28 @@ var logger = winston.createLogger({
 });
 
 // Send error message back to client
-const error_handler = (error, res) => {
-	logger.error(error);
-	const statusCode = error.statusCode || 500;
-	console.log(statusCode);
-	console.log(error.message || 'General error');
-	res.status(statusCode).send(error.message || 'General error');
-	res.end();
-};
+// const error_handler = (error, res) => {
+// 	logger.error(error);
+// 	const statusCode = error.statusCode || 500;
+// 	console.log(statusCode);
+// 	console.log(error.message || 'General error');
+// 	res.status(statusCode).send(error.message || 'General error');
+// 	res.end();
+// };
 
 const PORT = Number(process.env.PORT) || 8080;
 const app = express();
 
 app.use(bodyParser.json({ limit: '1000mb' }));
 app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
+
+// Middleware for error handling
+app.use((err, req, res, next) => {
+	logger.error(err);
+	const statusCode = err.statusCode || 500;
+	res.status(statusCode).send(err.message || 'General error');
+	res.end();
+});
 
 /**
  * Handle LazyLoading by scrolling the page down 100px every 100ms
